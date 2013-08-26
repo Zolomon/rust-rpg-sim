@@ -6,9 +6,6 @@ use std::rand::RngUtil;
 use extra::time::get_time;
 use extra::time::Timespec;
 
-//use utils::*;
-//use entities::*;
-
 pub mod entities;
 pub mod utils;
 
@@ -17,28 +14,27 @@ fn main() {
 
 	//  std::rand::task_rng().gen_int_range(0, 256)
 
+	use entities::entities::*;
 	use entities::*;
 	use utils::*;
 
 	let mut quit = false;
 
-	let mut player = entities::Player::new_player();
+	let mut player = entities::Entity::new_player();
 
 	let mut prevFrame = get_time();
-	
 
 	while !quit {
+		
+
 		let (dt, gt) = utils::getElapsedTime(prevFrame);
 
 		if player.position.x > 100.0f {
 			quit = true;
 		}
 
-		//move(player.position, East);
-		
-		//let gameTime = getElapsedGameTime(prevFrame);
-
-		println(fmt!("[sec:%d] [nsec:%d]", dt.sec as int, dt.nsec as int));
+		player.update(dt);
+		player.draw(dt);
 
 		prevFrame = gt;
 	}

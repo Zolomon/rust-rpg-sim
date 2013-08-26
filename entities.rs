@@ -1,43 +1,63 @@
 //use utils;
 //mod utils;
 
-
-
 pub mod entities {
 	
 	use utils::*;
+	use extra::time::Timespec;
 
-	pub struct Player {
-		name: ~str,
-		position: @mut utils::Point	
+	enum EntityType {
+		Hero,
+		Enemy
 	}
 
-	impl Player {
-		pub fn new_player() -> Player {
-			Player {
-				name: ~"Player",
-				position: @mut utils::Point {x: 0f, y: 0f}
+	impl EntityType {
+		fn to_str(&self) -> ~str {
+			match *self {
+				Hero  => ~"Hero",
+				Enemy => ~"Enemy",
 			}
 		}
 	}
 
-	pub trait Entity {
-		fn update(&self);
+	pub struct Entity {
+		name: ~str,
+		position: @mut utils::Point,
+		kind: EntityType
 	}
 
-	pub trait Drawable {
-		fn draw(&self);
-	}
-
-	impl Entity for Player {
-		fn update(&self) {
-			println(fmt!("%s is thinking", self.name));
+	impl Entity {
+		pub fn new_player() -> Entity {
+			Entity {
+				name: ~"Entity",
+				position: @mut utils::Point {x: 0f, y: 0f},
+				kind: Hero
+			}
 		}
 	}
 
-	impl Drawable for Player {
-		fn draw(&self) {
-			println(fmt!("Drawing: \t%s", self.name));
+	pub trait Updatable {
+		fn update(&self, dt: Timespec);
+	}
+
+	pub trait Drawable {
+		fn draw(&self, dt: Timespec);
+	}
+
+	impl Updatable for Entity {
+		fn update(&self, dt: Timespec) {
+
+			match self.kind {
+				_ => println(fmt!("Updating \t[%s:%s]", self.name, self.kind.to_str()))
+			}			
+		}
+	}
+
+	impl Drawable for Entity {
+		fn draw(&self, dt: Timespec) {
+			match self.kind {
+				_ => println(fmt!("Drawing: \t[%s:%s]", self.name, self.kind.to_str()))
+			}			
 		}
 	}
 
