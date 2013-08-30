@@ -4,6 +4,7 @@
 pub mod utils {
 	use extra::time::get_time;
 	use extra::time::Timespec;
+	use entities::entities::*;
 
 	pub fn getElapsedTime(prevFrame: Timespec) -> (Timespec, Timespec) {
 		let gt = get_time();
@@ -45,4 +46,79 @@ pub mod utils {
 			NorthWest	=>	Point { x: point.x - 1.0f, y: point.y + 1.0f },
 		}
 	}
+
+	pub enum GoalType {
+		GoalThink,
+		GoalExplore,
+		GoalSleep
+	}
+
+	pub enum GoalStatus {
+		Inactive,
+	    Active,
+	    Completed,
+	    Failed
+	}
+
+	/*pub struct GoalBase<T> {
+		kind: GoalType,
+		owner: @mut T,
+		status: @mut GoalStatus,
+	}
+
+	impl<T> GoalBase<T> {
+		pub fn new_goal<T>(owner: @mut T, goal: GoalType) -> GoalBase<T> {
+			GoalBase {
+				kind: goal,
+				owner: owner,
+				status: @mut Inactive
+			}
+		}
+	}
+
+	pub trait GoalTrait<T> {
+		fn ActivateIfInactive(&self) -> ();
+		fn ReactivateIfFailed(&mut self) -> ();
+		fn Activate(&self);
+		fn Process(&self) -> int;
+		fn Terminate(&self);
+		fn is_active(&self) -> bool;
+		fn is_inactive(&self) -> bool;
+		fn has_failed(&self) -> bool;
+		fn get_kind(&self) -> GoalType;
+		fn handle_message(&self) -> bool;
+		fn add_subgoal(&self, goal: Goal<T>);
+	}
+
+	impl<T> GoalTrait<T> for GoalBase<T> {
+		fn ActivateIfInactive(&self) -> () {
+			if self.is_inactive() {
+				self.Activate();
+			}
+		}
+		fn ReactivateIfFailed(&mut self) -> () {
+			if self.has_failed() {
+				self.status = @mut Inactive;
+			}
+		}
+
+		fn Activate(&self) {}
+		fn Process(&self) -> int { 0}
+		fn Terminate(&self) {}
+
+		fn is_active(&self) -> bool {true}
+		fn is_inactive(&self) -> bool {true}
+		fn has_failed(&self) -> bool {true}
+
+		fn get_kind(&self) -> GoalType {
+			self.kind
+		}
+
+		fn handle_message(&self) -> bool {
+			false
+		}
+		fn add_subgoal(&self, goal: Goal<T>) -> () {
+			
+		}
+	}*/
 }
