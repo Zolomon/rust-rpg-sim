@@ -1,5 +1,5 @@
 fn main() {
-
+	
 	struct GoalExplore {
 		name: ~str
 	}
@@ -11,6 +11,7 @@ fn main() {
 	trait Goal {
 		fn new() -> Self;
 		fn process(&self) { }
+		fn to_str(&self) -> ~str;
 	}
 
 	impl Goal for GoalExplore {
@@ -20,6 +21,10 @@ fn main() {
 
 		fn process(&self) {
 			println(fmt!("Exploring"));
+		}
+
+		fn to_str(&self) -> ~str {
+			self.name.clone()
 		}
 	}
 
@@ -31,54 +36,44 @@ fn main() {
 		fn process(&self) {
 			println(fmt!("Resting"))
 		}
+
+		fn to_str(&self) -> ~str {
+			self.name.clone()
+		}
 	}
 
-	enum Tree<T> {
-		Leaf(T),
-		Node(~[Tree<T>]),
+	enum Tree {
+		Leaf(@Goal),
+		Node(~[Tree]),
 	}
 
 	//fn foo<G: Goal>(goal: &G) { .. }
 
-	impl<T> Tree<T> {
-		fn push(&mut self, node: Tree<T>) {
+	impl Tree {
+		fn push(&mut self, node: Tree) {
 			match *self {
 				Node(ref mut children) => children.push(node),
 				Leaf(_) => fail!(~"Cannot add node to leaf node")
 			}
 		}
 
-		/*fn to_str(&mut self) {
+		fn process(&mut self) {
 			match *self {
-				Node(ref mut children) => for x in children.iter() { x.to_str() },
-				Leaf(v) => ()//println!("{:?}", v)
+				Node(ref mut children) => for x in children.mut_iter() { x.process() },
+				Leaf(l) => println(fmt!("Leaf: %s", l.to_str()))
 			}
-		}*/
+		}
 	}
 
 
-	let t: @GoalExplore = @Goal::new();
+	let mut t: @mut GoalExplore = @mut Goal::new();
 	t.process();
-	let rest: @GoalRest = @Goal::new();
+	let mut rest: @mut GoalRest = @mut Goal::new();
 	rest.process();
 
-	let mut tree: Tree<@Goal> = Node(~[]);
+	let mut tree: Tree = Node(~[]);
 
 	tree.push(Leaf(t as @Goal));
 
 	println!("{:?}", tree);
 }
-/*
-enum Tree<T> { 
-	Leaf(T), 
-	Node { children: ~[Tree<T>] } 
-} 
-
-let mut my_tree: Tree<uint> = Node { children: ~[] }; 
-
-match my_tree {     
-	Node { children: ref mut children } => children.push(Leaf(1u)), 
-	_ => () 
-} 
-
-my_tree  */
