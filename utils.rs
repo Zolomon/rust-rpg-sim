@@ -17,6 +17,7 @@ pub mod utils {
 		return (dt, gt);
 	}
 
+	#[deriving(Eq, ToStr)]
 	pub struct Point {
 	    x: float,
 	    y: float
@@ -47,12 +48,14 @@ pub mod utils {
 		}
 	}
 
+	#[deriving(Eq, ToStr)]
 	pub enum GoalType {
 		GoalThink,
 		GoalExplore,
 		GoalSleep
 	}
 
+	#[deriving(Eq, ToStr)]
 	pub enum GoalStatus {
 		Inactive,
 	    Active,
@@ -60,65 +63,73 @@ pub mod utils {
 	    Failed
 	}
 
-	/*pub struct GoalBase<T> {
-		kind: GoalType,
-		owner: @mut T,
-		status: @mut GoalStatus,
+	#[deriving(Eq, ToStr)]
+	struct GoalThink {
+		owner: @Entity,
+		status: GoalStatus,
+		goal_type: GoalType
 	}
 
-	impl<T> GoalBase<T> {
-		pub fn new_goal<T>(owner: @mut T, goal: GoalType) -> GoalBase<T> {
-			GoalBase {
-				kind: goal,
-				owner: owner,
-				status: @mut Inactive
-			}
-		}
-	}
+	trait Goal {
+		fn new(owner: @Entity) -> Self;
+		
+		fn activate(&self) 	{ }
+		fn process(&self) 	{ }
+		fn terminate(&self)	{ }
+		//fn handle_msg(&self, msg: Telegram) { }
+		fn add_subgoal(&self, goal: @Goal) { }
 
-	pub trait GoalTrait<T> {
-		fn ActivateIfInactive(&self) -> ();
-		fn ReactivateIfFailed(&mut self) -> ();
-		fn Activate(&self);
-		fn Process(&self) -> int;
-		fn Terminate(&self);
 		fn is_active(&self) -> bool;
 		fn is_inactive(&self) -> bool;
+		fn is_completed(&self) -> bool;
 		fn has_failed(&self) -> bool;
-		fn get_kind(&self) -> GoalType;
-		fn handle_message(&self) -> bool;
-		fn add_subgoal(&self, goal: Goal<T>);
+		fn get_type(&self) -> GoalType;
 	}
 
-	impl<T> GoalTrait<T> for GoalBase<T> {
-		fn ActivateIfInactive(&self) -> () {
-			if self.is_inactive() {
-				self.Activate();
+	impl Goal for GoalThink {
+		fn new(owner: @Entity) -> GoalThink { 
+			GoalThink { 
+				owner: owner, 
+				status: Inactive,
+				goal_type: GoalExplore
+			}
+		}	
+
+		fn process(&self) {
+			println(fmt!("Goal Think"));
+		}
+
+		fn is_active(&self) -> bool { self.status == Active }
+		fn is_inactive(&self) -> bool { self.status == Inactive }
+		fn is_completed(&self) -> bool { self.status == Completed }
+		fn has_failed(&self) -> bool { self.status == Failed }
+		fn get_type(&self) -> GoalType { self.goal_type }
+	}
+
+	enum Tree {
+	    Leaf(@Goal),
+	    Node(@Goal, ~[Tree])
+	}
+
+	impl Tree {
+		fn push(&mut self, node: Tree) {
+			match *self {
+				Node(goal, ref mut children) => children.push(node),
+				Leaf(_) => fail!(~"Cannot add node to leaf node")
 			}
 		}
-		fn ReactivateIfFailed(&mut self) -> () {
-			if self.has_failed() {
-				self.status = @mut Inactive;
+
+		fn process(&mut self) {
+			match *self {
+				Node(goal, ref mut children) => {
+
+					//for child in children.mut_iter() { child.process() }
+				},
+
+				Leaf(goal) => {
+					goal.process()
+				}
 			}
 		}
-
-		fn Activate(&self) {}
-		fn Process(&self) -> int { 0}
-		fn Terminate(&self) {}
-
-		fn is_active(&self) -> bool {true}
-		fn is_inactive(&self) -> bool {true}
-		fn has_failed(&self) -> bool {true}
-
-		fn get_kind(&self) -> GoalType {
-			self.kind
-		}
-
-		fn handle_message(&self) -> bool {
-			false
-		}
-		fn add_subgoal(&self, goal: Goal<T>) -> () {
-			
-		}
-	}*/
+	}
 }

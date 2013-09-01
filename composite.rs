@@ -10,36 +10,24 @@ fn main() {
 
 	trait Goal {
 		fn new() -> Self;
-		fn process(&self) { }
+		fn process(&self, depth: int) { }
 		fn to_str(&self) -> ~str;
 	}
 
 	impl Goal for GoalExplore {
-		fn new() -> GoalExplore {
-			GoalExplore { name: ~"GoalExplore" }
-		}
+		fn new() -> GoalExplore { GoalExplore { name: ~"GoalExplore" } }
 
-		fn process(&self) {
-			println(fmt!("Exploring"));
-		}
+		fn process(&self, depth: int) { println(fmt!("Exploring")); }
 
-		fn to_str(&self) -> ~str {
-			self.name.clone()
-		}
+		fn to_str(&self) -> ~str { self.name.clone() }
 	}
 
 	impl Goal for GoalRest {
-		fn new() -> GoalRest {
-			GoalRest { name: ~"GoalRest"}
-		}
+		fn new() -> GoalRest { GoalRest { name: ~"GoalRest"} }
 
-		fn process(&self) {
-			println(fmt!("Resting"))
-		}
+		fn process(&self, depth: int) { println(fmt!("Resting")) }
 
-		fn to_str(&self) -> ~str {
-			self.name.clone()
-		}
+		fn to_str(&self) -> ~str { self.name.clone() }
 	}
 
 	enum Tree {
@@ -57,23 +45,37 @@ fn main() {
 			}
 		}
 
-		fn process(&mut self) {
+		fn process(&mut self, depth: uint) {
 			match *self {
-				Node(ref mut children) => for x in children.mut_iter() { x.process() },
-				Leaf(l) => println(fmt!("Leaf: %s", l.to_str()))
+				Node(ref mut children) => {
+					println(fmt!("%sNode:", " ".repeat(depth)));
+					for x in children.mut_iter() { x.process(depth+1) }},
+				Leaf(l) => {
+					println(fmt!("%sLeaf: %s", " ".repeat(depth), l.to_str()));
+				}
 			}
 		}
 	}
 
-
 	let mut t: @mut GoalExplore = @mut Goal::new();
-	t.process();
 	let mut rest: @mut GoalRest = @mut Goal::new();
-	rest.process();
 
 	let mut tree: Tree = Node(~[]);
 
-	tree.push(Leaf(t as @Goal));
+	tree.push(
+		Node(~[
+			Leaf(t as @Goal), 
+			Leaf(rest as @Goal), 
+			Node(~[
+				Leaf(t as @Goal),
+				Leaf(t as @Goal),
+				Leaf(t as @Goal),
+				Node(~[
+					Leaf(t as @Goal),
+					Leaf(t as @Goal),
+					Leaf(t as @Goal)])])]));
+
+	tree.process(0);
 
 	println!("{:?}", tree);
 }

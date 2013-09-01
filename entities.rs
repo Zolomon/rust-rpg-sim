@@ -6,6 +6,7 @@ pub mod entities {
 	use utils::*;
 	use extra::time::Timespec;
 
+	#[deriving(Eq, ToStr)]
 	enum EntityType {
 		Hero,
 		Enemy
@@ -20,6 +21,7 @@ pub mod entities {
 		}
 	}
 
+	#[deriving(Eq, ToStr)]
 	pub struct Entity {
 		name: ~str,
 		position: @mut utils::Point,
